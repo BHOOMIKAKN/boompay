@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <style>
+        /* Reset and Positioning */
+body, html {
+    min-height: 100vh; /* Ensures full-page height */
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Moves content to top */
+    font-family: 'Arial', sans-serif;
+    background: white;
+    overflow: auto; /* Allows scrolling */
+}
+
+/* Container */
+.container {
+    background: #7f9eb5;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(31, 64, 104, 0.3);
+    max-width: 500px;
+    width: 90%;
+    border: 2px solid #1f4068;
+    transition: transform 0.3s ease-in-out;
+    margin-top: 30px; /* Adjust for better positioning */
+    min-height: auto; /* Expands with content */
+    flex-grow: 1;
+}
+
+.container:hover {
+    transform: scale(1.02);
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f4068;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    font-size: 15px;
+    color: #0a192f;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+/* Input Fields */
+input {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #f8f9fa;
+    color: #0a192f;
+    transition: all 0.3s ease-in-out;
+}
+
+input:focus {
+    border-color: #1f4068;
+    outline: none;
+    box-shadow: 0 0 10px rgba(31, 64, 104, 0.4);
+}
+
+/* PIN Input */
+input[type="password"] {
+    letter-spacing: 2px;
+}
+
+/* Submit Button */
+.btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #1f4068;
+    color: white;
+    border: 2px solid #162447;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background: #162447;
+    border-color: #0a192f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(31, 64, 104, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        padding: 30px;
+        max-width: 90%;
+        margin-top: 30px; /* Adjust for smaller screens */
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>User Details</h2>
+
+        {% if users %}
+            <form method="POST" action="/update_user">
+                <div class="form-group">
+                    <label for="id">ID:</label>
+                    <input type="text" id="id" name="id" value="{{ users[0] }}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ users[1] }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" value="{{ users[2] }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ users[3] }}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="bank_name">Bank Name:</label>
+                    <input type="text" id="bank_name" name="bank_name" value="{{ users[4] }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="account_number">Account Number:</label>
+                    <input type="text" id="account_number" name="account_number" value="{{ users[5] }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="ifsc">IFSC Code:</label>
+                    <input type="text" id="ifsc" name="ifsc" value="{{ users[6] }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="pin">PIN:</label>
+                    <input type="password" id="pin" name="pin" value="{{ users[7] }}">
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        {% else %}
+            <p style="text-align: center; color: red;">No user details found.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

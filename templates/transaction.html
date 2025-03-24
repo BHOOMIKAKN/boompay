@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: white; /* Dark navy blue */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            background: #303F9F; /* Medium navy blue */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: white;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #C5CAE9; /* Light navy blue */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #5C6BC0; /* Soft navy blue */
+            background: #3949AB; /* Medium navy */
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #7986CB; /* Lighter navy */
+            color: white;
+        }
+
+        th {
+            background-color: #283593; /* Dark navy */
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #3F51B5; /* Navy blue */
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #5C6BC0; /* Lighter navy */
+        }
+
+        tbody tr:hover {
+            background-color: #7986CB; /* Hover effect */
+            transition: 0.3s ease-in-out;
+        }
+
+        .positive {
+            color: #81C784; /* Soft green for positive */
+            font-weight: bold;
+        }
+
+        .negative {
+            color: #E57373; /* Soft red for negative */
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            table, th, td {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Transaction History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Details</th>
+                    <th>Amount</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction['details'] }}</td>
+                        <td>₹{{ transaction['amount'] }}</td>
+                        <td>{{ transaction['timestamp'] }}</td>
+                        <td class="{{ 'positive' if transaction['status'] == 'positive' else 'negative' }}">
+                            {{ transaction['status'] }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

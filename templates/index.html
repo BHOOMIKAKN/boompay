@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white; /* Dark Navy */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column; /* Stack content vertically */
+            text-align: center;
+            color: white; /* White text for contrast */
+        }
+
+        h2 {
+            color: #9bb1d6; /* Soft Blue */
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        /* Form Styling */
+        form {
+            background-color: white; /* Slightly lighter navy */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #1f4068;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #9bb1d6; /* Light Blue */
+            text-align: left;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #1f4068;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #23395d; /* Medium Navy */
+            color: white;
+        }
+
+        input[type="text"]::placeholder {
+            color: #9bb1d6;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #1f4068; /* Dark Navy */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2e4a7d; /* Brighter Navy */
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #9bb1d6;
+        }
+
+        a {
+            color: #9bb1d6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #dbe2ef;
+        }
+    </style>
+</head>
+<body>
+    <h2>Register</h2>
+    <form action="/add_user" method="POST">
+        <!-- Email Input Field -->
+        <label for="email">Email ID:</label>
+        <input type="text" id="email" name="email" placeholder="Enter Your Email" required>
+
+        <!-- Submit Button to Get OTP -->
+        <input type="submit" value="Get OTP">
+
+        <!-- Registration Link -->
+        <p>Don't have an account? <a href="/register">Register</a></p>
+    </form>
+</body>
+</html>

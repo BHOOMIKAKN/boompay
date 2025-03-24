@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Global Reset & Centering */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white; /* Dark Navy Background */
+        }
+
+        /* Login Container */
+        .container {
+            background: rgba(127, 158, 181, 0.9); /* Light Navy with slight transparency */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #1f4068; /* Navy Border */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        /* Heading */
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f4068; /* Deep Navy */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Input Field Styles */
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 15px;
+            color: #0a192f; /* Dark Navy */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: all 0.3s ease-in-out;
+            background: #f8f9fa;
+            color: #0a192f;
+        }
+
+        input:focus {
+            border-color: #1f4068;
+            outline: none;
+            box-shadow: 0 0 8px rgba(31, 64, 104, 0.4);
+        }
+
+        /* Submit Button */
+        button[type="submit"] {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #1f4068;
+            color: white;
+            border: 2px solid #162447;
+            border-radius: 6px;
+            transition: all 0.3s ease-in-out;
+            width: 100%;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button[type="submit"]:hover {
+            background: #162447;
+            border-color: #0a192f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Registration Link */
+        p {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #0a192f;
+        }
+
+        p a {
+            color: #1f4068;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease-in-out;
+        }
+
+        p a:hover {
+            color: #162447;
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/login" method="POST">
+            <!-- Email Input -->
+            <div class="input-group">
+                <label for="email">Email ID:</label>
+                <input type="text" id="email" name="email" placeholder="Enter Your Email" required>
+            </div>
+
+            <!-- Password Input -->
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter Your Password" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Login</button>
+
+            <!-- Registration Link -->
+            <p>Don't have an account? <a href="/register">Register</a></p>
+        </form>
+    </div>
+
+</body>
+</html>

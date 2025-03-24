@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking & Transactions</title>
+    <style>
+        /* Reset margin and padding */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            background: white; /* White Background */
+            color: #0d1b2a; /* Dark Navy Blue */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Fixed Header */
+        .header {
+            width: 100%;
+            height: 60px;
+            background: #162447; /* Dark Navy Blue */
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* User Icon */
+        .user-icon {
+            position: absolute;
+            right: 70px;
+        }
+
+        .user-icon a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-icon img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 2px solid white;
+        }
+
+        .user-icon img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin-top: 60px;
+        }
+
+        /* Container */
+        .container {
+            text-align: center;
+            background: #f8f9fa; /* Light Grayish White */
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid #0d1b2a; /* Dark Navy Border */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #162447; /* Dark Navy */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons */
+        button {
+            padding: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #23395d; /* Medium Navy */
+            color: white;
+            border: 2px solid #162447; /* Dark Navy */
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            margin: 10px 0;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: #2e4a7d; /* Brighter Navy */
+            border-color: #9bb1d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header with User Icon -->
+    <div class="header">
+        Banking & Transactions
+        <div class="user-icon">
+            <a href="{{ url_for('users') }}">User
+                <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User Icon">
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="container">
+            <h2>Select an Option</h2>
+            <button onclick="location.href='{{ url_for('transaction') }}'">Transaction through Bank</button>
+            <button onclick="location.href='{{ url_for('payment') }}'">Transaction through Phone Number</button>
+        </div>
+    </div>
+
+</body>
+</html>

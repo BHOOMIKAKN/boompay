@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking & Transactions</title>
+    <style>
+        /* Reset margin and padding */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            background: white; /* White Background */
+            color: #0d1b2a; /* Dark Navy Blue */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Fixed Header */
+        .header {
+            width: 100%;
+            height: 60px;
+            background: #162447; /* Dark Navy Blue */
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* User Icon */
+        .user-icon {
+            position: absolute;
+            right: 70px;
+        }
+
+        .user-icon a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-icon img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 2px solid white;
+        }
+
+        .user-icon img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin-top: 60px;
+        }
+
+        /* Container */
+        .container {
+            text-align: center;
+            background: #f8f9fa; /* Light Grayish White */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            border: 3px solid #0d1b2a; /* Dark Navy Border */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.03);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 26px;
+            font-weight: bold;
+            color: #162447; /* Dark Navy */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Grid Layout */
+        .button-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Buttons */
+        .option-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #23395d; /* Medium Navy */
+            color: white;
+            border: 2px solid #162447; /* Dark Navy */
+            border-radius: 12px;
+            transition: all 0.3s ease-in-out;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            gap: 15px;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-box:hover {
+            background: #2e4a7d; /* Brighter Navy */
+            border-color: #9bb1d6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Icons */
+        .option-box img {
+            width: 40px;
+            height: 40px;
+            background: white; /* White background for better visibility */
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header with User Icon -->
+    <!-- Header with User Icon -->
+<div class="header">
+    <div class="user-icon">
+        <a href="{{ url_for('users') }}">User
+            <img src="https://cdn-icons-png.flaticon.com/512/1077/1077012.png" alt="User Icon">
+        </a>
+    </div>
+</div>
+
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="container">
+            <h2>Select an Option</h2>
+
+            <div class="button-container">
+                <!-- First Row -->
+                <button class="option-box" onclick="location.href='{{ url_for('bankinfo1') }}'">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2991/2991196.png" alt="Bank Icon">
+                    User Bank Details
+                </button>
+
+                <button class="option-box" onclick="location.href='{{ url_for('index2') }}'">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2910/2910799.png" alt="Transaction Icon">
+                    Transaction
+                </button>
+
+                <!-- Second Row -->
+                <button class="option-box full-width" onclick="location.href='{{ url_for('transaction_history') }}'">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3521/3521788.png" alt="History Icon">
+                    Transaction Details
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

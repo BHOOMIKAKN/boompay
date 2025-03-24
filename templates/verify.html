@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <style>
+        /* Center the content both vertically and horizontally */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1f4068; /* Deep Navy */
+        }
+
+        .otp-box {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 40px;
+            padding: 10px;
+            margin: 0 5px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: #1f4068; /* Deep Navy */
+            outline: none;
+            box-shadow: 0 0 8px rgba(31, 64, 104, 0.4);
+        }
+
+        /* Dark Navy Blue Button */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #1f4068; /* Dark Navy Blue */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: #162447; /* Slightly Darker Navy */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(31, 64, 104, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Enter OTP</h2>
+
+        <!-- OTP Input Fields -->
+        <form action="/verify_otp" method="post">
+            <input type="hidden" name="email" value="{{ email }}"> <!-- Pass email for verification -->
+            <div class="otp-box">
+                <input type="text" maxlength="1" id="otp1" oninput="moveFocus(this, otp2)" required>
+                <input type="text" maxlength="1" id="otp2" oninput="moveFocus(this, otp3)" required>
+                <input type="text" maxlength="1" id="otp3" oninput="moveFocus(this, otp4)" required>
+                <input type="text" maxlength="1" id="otp4" oninput="moveFocus(this)" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" onclick="combineOTP()">Submit</button>
+            <input type="hidden" id="otp" name="otp">
+        </form>
+    </div>
+
+    <script>
+        // Move focus to the next input after entering a digit
+        function moveFocus(current, next) {
+            if (current.value.length == current.maxLength) {
+                next?.focus();
+            }
+        }
+
+        // Combine OTP values into a single hidden input before submission
+        function combineOTP() {
+            let otp = document.getElementById('otp1').value +
+                      document.getElementById('otp2').value +
+                      document.getElementById('otp3').value +
+                      document.getElementById('otp4').value;
+
+            document.getElementById('otp').value = otp;
+        }
+    </script>
+
+</body>
+</html>
