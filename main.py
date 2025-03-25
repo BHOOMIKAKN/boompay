@@ -74,11 +74,24 @@ def transaction_history():
 @app.route("/register", methods=["GET", "POST"])
 def hello():
     if request.method == "POST":
-        name = request.form["name"]
-        phone_number = request.form["phone_number"]
-        email = request.form["email"]
+        # Check if the request is JSON
+        if request.is_json:
+            data = request.get_json()
+            name = data.get("name")
+            phone_number = data.get("phone_number")
+            email = data.get("email")
+        else:
+            # Default to form-data
+            name = request.form.get("name")
+            phone_number = request.form.get("phone_number")
+            email = request.form.get("email")
+
+        if not all([name, phone_number, email]):
+            return "Missing data", 400  # Return error if any field is missing
+
         add_new = register(name, phone_number, email)
         return redirect(url_for('hi'))
+
     return render_template('register.html')
 
 
@@ -234,7 +247,7 @@ def enter_passcode():
 
                         print("Transaction committed ✅")
 
-                        return redirect(url_for('index2'))
+                        return redirect(url_for('confirm_page'))
         except Exception as e:
             print("Full Error Traceback:\n", traceback.format_exc())
             return f"Database Error: {str(e)}", 500
@@ -306,17 +319,31 @@ def confirm_page():
 @app.route('/bankinfo', methods=['GET', 'POST'])
 def bankinfo1():
     if request.method == 'POST':
-        bank_name = request.form['bank_name']
-        account_number = request.form['account_number']
-        ifsc_code = request.form['ifsc_code']
-        passcode = request.form['passcode']
-        phone_number = request.form['phone_number']  # Fetch phone number from form
+        # Handle JSON and form-data correctly
+        if request.is_json:
+            data = request.get_json()
+            bank_name = data.get('bank_name')
+            account_number = data.get('account_number')
+            ifsc_code = data.get('ifsc_code')
+            passcode = data.get('passcode')
+            phone_number = data.get('phone_number')
+        else:
+            bank_name = request.form.get('bank_name')
+            account_number = request.form.get('account_number')
+            ifsc_code = request.form.get('ifsc_code')
+            passcode = request.form.get('passcode')
+            phone_number = request.form.get('phone_number')
+
+        # Ensure all fields are provided
+        if not all([bank_name, account_number, ifsc_code, passcode, phone_number]):
+            return jsonify({"error": "All fields are required"}), 400
 
         try:
+            # Database connection
             connection = pymysql.connect(host='localhost', user='root', password='admin@123', database='payment1')
             cursor = connection.cursor()
 
-            # Insert into the database including phone_number
+            # Insert into the database
             cursor.execute("""
                 INSERT INTO bank3 (bank_name, account_number, ifsc_code, passcode, phone_number) 
                 VALUES (%s, %s, %s, %s, %s)
@@ -324,16 +351,15 @@ def bankinfo1():
             connection.commit()
 
         except Exception as e:
-            return f"Database Error: {str(e)}", 500
+            return f"Database Error: {str(e)}", 500  # Returns string error
 
         finally:
             cursor.close()
             connection.close()
 
-        return redirect(url_for('index2'))  # Redirect after successful submission
+        return redirect(url_for('index2'))  # Redirect after successful form submission
 
-    return render_template("bankinfo.html")  # Ensure this template includes a phone number input field
-
+    return render_template("bankinfo.html")
 
 @app.route('/user_bank')
 def user_bank_page():

@@ -33,7 +33,7 @@
 
         .checkmark {
             font-size: 100px;
-            color: green;
+            color: navy blue;
         }
 
         p {
@@ -41,6 +41,12 @@
             color: #333;
         }
     </style>
+    <script>
+        // Redirect after 3 seconds
+        setTimeout(function() {
+            window.location.href = "{{ url_for('index2') }}";
+        }, 3000);
+    </script>
 </head>
 <body>
 
