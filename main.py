@@ -2,7 +2,7 @@ import traceback
 
 import pymysql
 from flask import Flask, jsonify, redirect, render_template, request, url_for, session, flash
-
+import random
 import db
 from db import is_registered, register, send_otp, bankinfo, get_bank_names, is_phone_registered
 
@@ -182,6 +182,9 @@ def enter_passcode():
     if not email:
         return "No email found in session. Please generate OTP first.", 400
 
+    if request.method == 'GET':
+        return render_template('enter_passcode.html')  # Ensure a valid response for GET requests
+
     if request.method == 'POST':
         payment_type = request.form.get('payment_type')
         entered_passcode = request.form.get('passcode')
@@ -190,64 +193,216 @@ def enter_passcode():
         try:
             with get_db_connection() as connection:
                 with connection.cursor() as cursor:
-                    # Fetch stored passcode
-                    sql_fetch = "SELECT passcode FROM user_bank_details WHERE email = %s"
-                    cursor.execute(sql_fetch, (email,))
-                    stored_passcode = cursor.fetchone()
+                    # ✅ Fetch stored passcode from `user_bank_details`
+                    sql_fetch_passcode = "SELECT passcode FROM user_bank_details WHERE email = %s"
+                    cursor.execute(sql_fetch_passcode, (email,))
+                    stored_passcode_result = cursor.fetchone()
 
-                    if not stored_passcode or not stored_passcode["passcode"]:
-                        return "Email not found in records! Please check again.", 404
+                    if not stored_passcode_result or not stored_passcode_result["passcode"]:
+                        return {"error": "Passcode not found for this email."}, 400
 
-                    stored_passcode = stored_passcode["passcode"]
+                    stored_passcode = stored_passcode_result["passcode"]
                     print("Stored Passcode:", stored_passcode)
 
                     if entered_passcode == stored_passcode:
                         print(f"Received payment_type: '{payment_type}'")
 
                         if payment_type == 'bank':
+                            # ✅ Deduct balance for Bank Payment
+                            print("✅ Entered Bank Payment block")
                             bank_name = request.form.get('bank_name')
                             recipient_name = request.form.get('recipient_name')
                             account_number = request.form.get('account_number')
                             ifsc_code = request.form.get('ifsc_code')
 
-                            print(f"Bank Payment Details: {bank_name}, {recipient_name}, {account_number}, {ifsc_code}, {amount}")
+                            cursor.execute("SELECT balance_amnt FROM user_bank_details WHERE email = %s", (email,))
+                            sender_balance_result = cursor.fetchone()
+                            if sender_balance_result:
+                                if isinstance(sender_balance_result, dict):  # If dict, extract correctly
+                                    sender_balance = int(sender_balance_result.get('balance_amnt', 0))
+                                elif isinstance(sender_balance_result, tuple):  # If tuple, extract first element
+                                    sender_balance = int(sender_balance_result[0])
+                                else:
+                                    sender_balance = 0  # Handle unexpected cases
+                            else:
+                                sender_balance = 0  # Handle case where balance is missing
 
-                            sql_insert_bank = """INSERT INTO payments_bank (bank_name, recipient_name, account_number, ifsc_code, amount) 
-                                                 VALUES (%s, %s, %s, %s, %s)"""
-                            cursor.execute(sql_insert_bank, (bank_name, recipient_name, account_number, ifsc_code, amount))
+                            print(f"✅ Extracted Sender's Balance (Bank): {sender_balance}")
+                            amount = int(amount)
+                            if sender_balance >= amount:
+                                cursor.execute("UPDATE user_bank_details SET balance_amnt = balance_amnt - %s WHERE email = %s",
+                                               (amount, email))
 
-                            details_bank = f"Bank Payment - {bank_name}, {recipient_name}"
-                            sql_transaction_bank = """INSERT INTO transactions1 (details, amount, timestamp, status)
-                                                      VALUES (%s, %s, NOW(), %s)"""
-                            cursor.execute(sql_transaction_bank, (details_bank, amount, "positive"))
+                                cursor.execute(
+                                    """INSERT INTO payments_bank (bank_name, recipient_name, account_number, ifsc_code, amount) 
+                                       VALUES (%s, %s, %s, %s, %s)""",
+                                    (bank_name, recipient_name, account_number, ifsc_code, amount)
+                                )
+
+                                details = f"Bank Payment - {bank_name}, {recipient_name}"
+
+                                cursor.execute(
+                                    """INSERT INTO transactions1 (details, amount, timestamp, status)
+                                       VALUES (%s, %s, NOW(), %s)""",
+                                    (details, amount, "positive")
+                                )
+
+                                connection.commit()
+                                print("✅ Bank Payment successful!")
+                                return redirect(url_for('confirm_page'))
+                            else:
+                                return "❌ Insufficient Balance for Bank Payment", 400
+
+
 
                         elif payment_type == 'phone_number':
+                            print(email)
                             print("✅ Entered phone_number payment block")
+
                             name = request.form.get('name')
 
                             phone_number = request.form.get('phone_number')
 
                             print(f"Phone Payment Details: {name}, {phone_number}, {amount}")
 
-                            sql_insert_phone = """INSERT INTO payments_phone (name, phone_number, amount) 
+                            # Fetch the balance safely
 
-                                                      VALUES (%s, %s, %s)"""
+                            cursor.execute("SELECT balance_amnt FROM user_bank_details WHERE email = %s",
+                                           (email,))
+                            sender_balance_result = cursor.fetchone()
 
-                            cursor.execute(sql_insert_phone, (name, phone_number, amount))
+                            print(f"DEBUG: sender_balance_result = {sender_balance_result}")  # ✅ Debugging step
 
-                            details_phone = f"Phone Payment - {name}, {phone_number}"
+                            if sender_balance_result is not None and len(sender_balance_result) > 0:
 
-                            sql_transaction_phone = """INSERT INTO transactions1 (details, amount, timestamp, status)
+                                sender_balance = int(sender_balance_result['balance_amnt'])  # ✅ Correct way for DictCursor
 
-                                                           VALUES (%s, %s, NOW(), %s)"""
+                                print(f"✅ Extracted Sender's Balance (Phone): {sender_balance}")
 
-                            cursor.execute(sql_transaction_phone, (details_phone, amount, "positive"))
+                                if sender_balance >= int(amount):
 
-                        connection.commit()  # Commit changes for both cases
+                                    # Deduct the amount
 
-                        print("Transaction committed ✅")
+                                    cursor.execute(
+                                        "UPDATE user_bank_details SET balance_amnt = balance_amnt - %s WHERE email = %s",
 
-                        return redirect(url_for('confirm_page'))
+                                        (amount, email))
+                                    connection.commit()
+                                    # Insert payment details
+
+                                    sql_insert_phone = """INSERT INTO payments_phone (name, phone_number, amount) 
+
+                                                          VALUES (%s, %s, %s)"""
+
+                                    cursor.execute(sql_insert_phone, (name, phone_number, amount))
+                                    connection.commit()
+                                    # Insert transaction record
+
+                                    details_phone = f"Phone Payment - {name}, {phone_number}"
+
+                                    sql_transaction_phone = """INSERT INTO transactions1 (details, amount, timestamp, status)
+
+                                                               VALUES (%s, %s, NOW(), %s)"""
+
+                                    cursor.execute(sql_transaction_phone, (details_phone, amount, "positive"))
+                                    connection.commit()
+                                    print("✅ Phone Payment Successful, Amount Deducted")
+
+                                else:
+
+                                    print("❌ Insufficient Balance in Phone Account")
+
+                            else:
+
+                                print("❌ Phone Number Not Found in Database or No Balance Record")
+
+                        elif payment_type == 'upi_id':
+
+                            print("✅ Entered UPI Payment block")
+
+                            upi_id = request.form.get('upi_id')
+                            print(upi_id)
+                            recipient_name = request.form.get('name')
+                            print(recipient_name)
+                            print(f"UPI Payment Details: {recipient_name}, {upi_id}, {amount}")
+                            sender_phone = session.get('phone_number')  # Get sender's phone number
+                            print(sender_phone)
+                            cursor.execute("SELECT upi_id FROM user_bank_details WHERE email = %s", (email,))
+
+                            sender_upi_id = cursor.fetchone()
+                            print(sender_upi_id) #okay upto here
+                            if sender_upi_id:
+                                if isinstance(sender_upi_id, dict):
+                                    sender_upi_id = sender_upi_id.get('upi_id')  # Extract from dict
+                                    print(sender_upi_id)
+                                elif isinstance(sender_upi_id, tuple):
+                                    sender_upi_id = sender_upi_id[0]  # Extract from tuple
+                                    print(sender_upi_id)
+                                else:
+                                    sender_upi_id = None  # Handle unexpected cases
+                                    print("None UPI ID")
+                            print(f"✅ Sender's UPI ID: {sender_upi_id}")
+                            cursor.execute("SELECT balance_amnt FROM bank3 WHERE upi_id = %s", (sender_upi_id,))
+                            sender_balance_result = cursor.fetchone()
+
+                            if sender_balance_result:
+                                if isinstance(sender_balance_result, dict):  # ✅ If dict, extract correctly
+                                    sender_balance = int(sender_balance_result.get('balance_amnt', 0))
+                                elif isinstance(sender_balance_result, tuple):  # ✅ If tuple, extract first element
+                                    sender_balance = int(sender_balance_result[0])
+                                else:
+                                    sender_balance = 0  # Handle unexpected cases
+                            else:
+                                sender_balance = 0  # Handle case where balance is missing
+
+                            print(f"✅ Extracted Sender's Balance: {sender_balance}")
+                            amount= int(amount)
+                            if sender_balance >= amount:  # ✅ Corrected check
+                                print("✅ Sufficient balance, proceeding with transaction...") # Convert to integer
+                            else:
+                                sender_balance = None  # Handle cases where balance is not found
+
+                            print(f"✅ Extracted Sender's Balance: {sender_balance}")
+
+                            if sender_balance is not None and sender_balance >= int(
+                                    amount):  # Ensure amount is also an integer
+                                try:
+                                    # Deduct amount from sender's balance
+                                    cursor.execute(
+                                        "UPDATE bank3 SET balance_amnt = balance_amnt - %s WHERE upi_id = %s",
+                                        (amount, sender_upi_id)
+                                    )
+
+                                    # Insert payment record
+                                    sql_insert_upi = """INSERT INTO payments_upi 
+                                                        (upi_id, recipient_name, amount, passcode) 
+                                                        VALUES (%s, %s, %s, %s)"""
+                                    cursor.execute(sql_insert_upi, (upi_id, recipient_name, amount, stored_passcode))
+
+                                    # Insert transaction record
+                                    details_upi = f"UPI Payment - {recipient_name}, {upi_id}"
+                                    sql_transaction_phone = """INSERT INTO transactions1 (details, amount, timestamp, status)
+                                                               VALUES (%s, %s, NOW(), %s)"""
+                                    cursor.execute(sql_transaction_phone, (details_upi, amount, "positive"))
+
+                                    # Commit transaction
+                                    connection.commit()
+                                    print("✅ Payment successful and balance updated!")
+                                    print("✅ Transaction committed")
+
+                                    return redirect(url_for('confirm_page'))
+
+                                except Exception as e:
+                                    connection.rollback()  # Rollback in case of error
+                                    print(f"❌ Transaction failed! Error: {e}")
+                                    return "Transaction Failed", 500
+
+                            else:
+                                print("❌ Insufficient balance! Transaction failed.")
+                                return "Insufficient Balance", 400
+
+                    return redirect(url_for('confirm_page'))
+
         except Exception as e:
             print("Full Error Traceback:\n", traceback.format_exc())
             return f"Database Error: {str(e)}", 500
@@ -325,17 +480,21 @@ def bankinfo1():
             bank_name = data.get('bank_name')
             account_number = data.get('account_number')
             ifsc_code = data.get('ifsc_code')
+            upi_id = data.get('upi_id')
+            #balance_amnt = data.get('balance_amnt')
             passcode = data.get('passcode')
             phone_number = data.get('phone_number')
         else:
             bank_name = request.form.get('bank_name')
             account_number = request.form.get('account_number')
             ifsc_code = request.form.get('ifsc_code')
+            upi_id = request.form.get('upi_id')
+            #balance_amnt = request.form.get('balance_amnt')
             passcode = request.form.get('passcode')
             phone_number = request.form.get('phone_number')
 
         # Ensure all fields are provided
-        if not all([bank_name, account_number, ifsc_code, passcode, phone_number]):
+        if not all([bank_name, account_number, ifsc_code, upi_id, passcode, phone_number]):
             return jsonify({"error": "All fields are required"}), 400
 
         try:
@@ -345,9 +504,9 @@ def bankinfo1():
 
             # Insert into the database
             cursor.execute("""
-                INSERT INTO bank3 (bank_name, account_number, ifsc_code, passcode, phone_number) 
-                VALUES (%s, %s, %s, %s, %s)
-            """, (bank_name, account_number, ifsc_code, passcode, phone_number))
+                INSERT INTO bank3 (bank_name, account_number, ifsc_code, upi_id, passcode, phone_number) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (bank_name, account_number, ifsc_code, upi_id, passcode, phone_number))
             connection.commit()
 
         except Exception as e:
@@ -360,6 +519,56 @@ def bankinfo1():
         return redirect(url_for('index2'))  # Redirect after successful form submission
 
     return render_template("bankinfo.html")
+
+
+def generate_transaction_id():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+
+
+@app.route('/upi_payment', methods=['POST'])
+def upi_payment():
+    try:
+        data = request.json
+        sender_upi = data.get('upi_id')  # Sender's UPI ID from another application
+        amount = data.get('amount')
+
+        if not sender_upi or not amount:
+            return jsonify({"error": "Sender UPI ID and amount are required"}), 400
+
+        # Fetch sender details from users_bank_details view
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT account_holder, passcode FROM users_bank_details WHERE upi_id = %s", (sender_upi,))
+                sender_data = cursor.fetchone()
+
+        if not sender_data:
+            return jsonify({"error": "Sender details not found"}), 404
+
+        sender_name, sender_passcode = sender_data
+
+        print(f"✅ Sender Found: {sender_name} ({sender_upi}) | Amount: ₹{amount}")
+
+        # Store transaction in database
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                sql_insert_upi_payment = """INSERT INTO payments_upi (upi_id, account_holder, amount, passcode)
+                                            VALUES (%s, %s, %s, %s)"""
+                cursor.execute(sql_insert_upi_payment, (sender_upi, sender_name, amount, sender_passcode))
+                connection.commit()
+
+        print(f"✅ Payment of ₹{amount} from {sender_upi} processed successfully.")
+
+        return jsonify({
+            "message": "Payment successful",
+            "upi_id": sender_upi,
+            "account_holder": sender_name,
+            "amount": amount
+        })
+
+    except Exception as e:
+        print("Full Error Traceback:\n", traceback.format_exc())
+        return jsonify({"error": "Internal Server Error"}), 500
+
 
 @app.route('/user_bank')
 def user_bank_page():
@@ -375,6 +584,11 @@ def user_bank_page():
 @app.route("/payment")
 def payment():
     return redirect(url_for('paying1'))
+
+
+@app.route("/paymentupi")
+def paymentupi():
+    return redirect(url_for('paying2'))
 
 
 @app.route("/transaction")
@@ -397,7 +611,12 @@ def paying1():
     return render_template("paying1.html")
 
 
-@app.route("/users", methods=["GET", "POST"])
+@app.route("/paying2")
+def paying2():
+    return render_template("paying2.html")
+
+
+@app.route("/users", methods=["GET"])
 def users():
     user_email = session.get("otp_email")
     if not user_email:
